@@ -16,8 +16,15 @@ router.post("/", async (req, res) => {
 
 		const salt = await bcrypt.genSalt(Number(process.env.SALT));
 		const hashPassword = await bcrypt.hash(req.body.password, salt);
+		const hashconfrimPassword = await bcrypt.hash(req.body.confrimPassword, salt);
+		if(hashPassword != hashconfrimPassword)
+			return res
+				.status(409)
+				.send({ message: "password and confrim password not same" });
+	
 
-		await new User({ ...req.body, password: hashPassword }).save();
+		    await new User({ ...req.body, password: hashPassword }).save();
+		    await new User({ ...req.body, confrimPassword: hashconfrimPassword });
 		res.status(201).send({ message: "User created successfully" });
 	} catch (error) {
 		res.status(500).send({ message: "Internal Server Error" });
